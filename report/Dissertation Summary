@@ -1,0 +1,187 @@
+# Dissertation Summary
+
+## Title
+
+**Design and Evaluation of Multi-Agent Conversational Life Coaches Grounded in Behavioural Psychology**  
+MSc Data Science, University of Surrey
+
+## Motivation
+
+The work starts from two converging trends:
+
+- A global mental health and wellbeing crisis, where many people struggle with anxiety, procrastination, shame, and lack of structure but have limited access to affordable, high-quality support.
+- Rapid advances in large language models (LLMs), which can now sustain rich, conversational dialogue and are being increasingly marketed as “AI coaches” or “AI therapists”.
+
+Most existing systems are either generic chatbots with shallow encouragement, or opaque “black boxes” with little transparency about their psychological grounding or evaluation. This dissertation asks:
+
+> **How can we design and systematically evaluate a multi-agent conversational “life coach” that is grounded in established behavioural frameworks rather than just generic LLM chat?**
+
+## Research Aims and Questions
+
+The project has three main aims:
+
+1. **Design** multi-agent conversational life coach architectures that combine:
+   - Cognitive Behavioural Therapy (CBT),
+   - Performance psychology (motivation, habits, productivity),
+   - Cultural wisdom from the *Thirukkural*.
+
+2. **Implement** these designs using modern LLM tooling (LangFlow, RAG, vector databases) in a way that is modular and inspectable.
+
+3. **Evaluate** the resulting systems along psychological and linguistic dimensions, not just “does it sound nice”.
+
+Guiding questions include:
+
+- What does a *multi-agent* life coach architecture look like in practice?
+- How do features such as **retrieval-augmented generation (RAG)**, **memory**, and **multi-agent aggregation** affect conversation quality?
+- Where do such systems approximate human-like coaching, and where do they fail?
+
+## Methodology and System Design
+
+The project follows a **design-science / iterative prototyping** methodology rather than a single static system.
+
+### Technical stack
+
+- **LangFlow** on top of **LangChain** for visual and modular pipeline design.
+- **RAG** using a vector store (AstraDB) built from three corpora:
+  - CBT-oriented psychoeducational material,
+  - Performance psychology resources,
+  - Public-domain translations and commentaries on the *Thirukkural*.
+- **Message History** components for short-term conversational memory.
+- Two types of LLM backends:
+  - A general foundation model accessed via **OpenRouter**,
+  - A specialised, fine-tuned **“life coach” model** served via Ollama.
+
+### Agents and Aggregator
+
+The final architectures are organised around three specialist agents:
+
+- **CBT Agent** – focuses on thoughts, feelings, behaviours, and cognitive restructuring.
+- **Performance Agent** – focuses on goal-setting, motivation, habits, and action plans.
+- **Cultural / Thirukkural Agent** – introduces culturally resonant, values-based guidance.
+
+Above them sits an **Aggregator Agent** that reads the conversation, calls one or more specialists, and then synthesises a single reply. Two orchestration modes are explored:
+
+- **Blend mode** – combine CBT + Performance (and optionally Thirukkural) into one balanced response.
+- **Bias mode** – intentionally lean towards CBT *or* Performance depending on the user’s needs (e.g. high distress vs. practical planning).
+
+### Prototype Evolution
+
+A family of **16 prototypes** (v1.1 to v8.2) is developed:
+
+- **Early prototypes (v1.x–v2.x)**  
+  - Single agent, prompt-only, then adding short-term memory.
+
+- **Intermediate prototypes (v3.x–v4.x)**  
+  - Add RAG and Thirukkural grounding so the system can quote and reason with external texts.
+
+- **Advanced prototypes (v5.x–v8.x)**  
+  - Introduce multi-agent orchestration and the aggregator:
+    - v5–v6: multi-agent **blend** mode,
+    - v7–v8: multi-agent **bias** mode, using the aggregator as a meta-coach choosing the dominant voice.
+
+At each stage, prototypes are stress-tested and refined based on observed strengths and failure modes.
+
+## Evaluation Framework
+
+Rather than relying on “it sounds good to me”, the dissertation proposes a mixed evaluation framework combining **human judgement** and **automatic metrics**.
+
+### Benchmark Prompts
+
+All prototypes are tested on a fixed set of **five prompts** representing common life-coaching scenarios:
+
+1. Anxiety and procrastination around a dissertation (“My name is Splash…”).
+2. Feelings of not being good enough.
+3. Whether introspection is useful or a waste of time.
+4. Staying motivated to follow milestones.
+5. Remembering the user’s name.
+
+This keeps comparisons fair: every version answers the *same* emotional and practical challenges.
+
+### Human-rated Rubrics
+
+Two bespoke rubrics are defined:
+
+- **CARE** (adapted):  
+  - *Communication* – clarity and structure.  
+  - *Autonomy* – supports user agency rather than taking over.  
+  - *Respect* – non-judgemental, validating stance.  
+  - *Empathy* – warmth and emotional attunement.
+
+- **Psychological Realism**:  
+  - *Groundedness* – alignment with CBT/performance/*Thirukkural* principles.  
+  - *Cognitive Insight* – helps the user see patterns and alternatives.  
+  - *Emotional Resonance* – feels like a plausible, sincere human response.  
+  - *Forward Movement* – encourages concrete next steps rather than spinning in circles.
+
+Each dimension is rated on a 1–5 scale, giving a structured snapshot of conversational quality.
+
+### Readability and NLP Metrics
+
+To complement subjective ratings, the work also measures:
+
+- **Word count**
+- **Flesch Reading Ease**
+- **Flesch–Kincaid Grade Level**
+- **N-gram repetition** (bigrams/trigrams as a proxy for redundancy)
+- **Consistency** (how similar multiple responses to the same prompt are)
+
+Empirically, the “sweet spot” for responses that feel both **helpful and readable** is:
+
+- ~70–100 words,
+- Flesch–Kincaid Grade Level around **7–9** (upper primary / early secondary),
+- Flesch Reading Ease in the **mid-60s to mid-70s**.
+
+## Key Findings
+
+Across the 16 prototypes, several patterns emerge:
+
+1. **Simple prompt-only agents are not enough.**  
+   Baseline models can sound friendly but are often vague, repetitive, and ungrounded in any clear psychological framework.
+
+2. **RAG improves groundedness and specificity.**  
+   When the system can pull from CBT, performance psychology, and *Thirukkural* texts, it is more likely to:
+   - Give concrete techniques (e.g. behavioural activation, implementation intentions),
+   - Offer culturally resonant reflections,
+   - Avoid purely generic advice.
+
+3. **Memory helps, but also introduces repetition.**  
+   Message-history components allow the coach to remember the user’s name and ongoing concerns, which supports rapport and continuity. However, some models become overly repetitive if the prompt or history is not carefully controlled.
+
+4. **Multi-agent aggregation is powerful but fragile.**  
+   - Advanced prototypes that blend CBT and performance psychology generally achieve **higher CARE and Psychological Realism scores**, especially in empathy and forward movement.
+   - The bias mode allows the system to lean into stabilising support (CBT) when distress is high, or into action-oriented coaching when the user is ready to move.
+   - At the same time, multi-agent orchestration introduces complexity: a small but noticeable fraction of runs produce incomplete or incoherent outputs, and careful prompt design is required to avoid verbosity or clashes between agents.
+
+5. **Cultural grounding via the Thirukkural is promising but subtle.**  
+   Verses often add depth, metaphor, and ethical framing, but can occasionally be thematically appropriate yet contextually slightly off. This underlines the need for cautious, context-sensitive use of cultural texts.
+
+Overall, the study shows that **well-designed multi-agent, RAG-based systems can approximate several important aspects of human life coaching**, particularly around empathy, structure, and practical planning—while still clearly falling short of professional human care.
+
+## Contributions
+
+The dissertation’s main contributions are:
+
+1. A **concrete design space** for multi-agent LLM life coaches that combine CBT, performance psychology, and cultural wisdom.
+2. A set of **16 documented prototypes** showing how features like RAG, memory, and aggregation change conversational behaviour.
+3. A **psychologically informed evaluation framework** based on CARE, Psychological Realism, and readability/NLP metrics, which can be reused for other coaching or mental-health chatbots.
+4. Empirical insights into **what makes coaching-style responses feel realistic and helpful**, including response length, reading level, and orchestration patterns.
+
+## Limitations and Future Work
+
+The work is intentionally cautious and identifies several limitations:
+
+- Evaluation is based on **simulated conversations** rather than a large user study.
+- Rubric ratings involve a small number of human raters and are therefore subjective.
+- The system is **not clinically validated** and is explicitly not a replacement for therapy or crisis support.
+- Cultural grounding is explored primarily through the *Thirukkural*; broader, comparative cross-cultural work remains open.
+
+Future directions include:
+
+- Porting the LangFlow designs into fully code-based, testable agents.
+- Running controlled user studies on engagement, trust, and long-term impact.
+- Expanding to additional cultural and linguistic traditions.
+- Integrating stronger safety filters, referrals, and ethical guardrails for deployment.
+
+---
+
+This summary is intended as a readable, high-level overview for GitHub visitors. For full technical and methodological detail, please see the complete dissertation in `report/`.
